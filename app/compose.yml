@@ -1,0 +1,25 @@
+services:
+  fastapi:
+    build: .
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app  # Mount the application code into the container, enabling live updates
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload  # Include the reload flag
+    depends_on:
+      - elasticsearch
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+      - "9300:9300"
